@@ -1,62 +1,64 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Vector;
-
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception{
-
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
+        int n = Integer.parseInt(br.readLine()); //후보자 몇 명인지
+//        ArrayList<String> name = new ArrayList<String>();
+        String v; //투표입력
+        Queue<Integer>[] vote_arr = new LinkedList[1001];
+        int voting_person = 0; //몇명이 투표했는지?
+        //후보 이름 입력
         String[] name = new String[n];
 
         for(int i=0; i<n; i++){
             name[i] = br.readLine();
         }
-        String input = "";
-        Queue<Integer>[] score = new LinkedList[1001];
-        int count = 0;
-        int[] v = new int[1001];
-        while((input = br.readLine()) != null && input.length() != 0){
-            String[] arr = input.split(" ");
-            score[count] = new LinkedList<>();
-            for(int i=0; i<n; i++){
-                score[count].add(Integer.parseInt(arr[i])-1);
+        //투표값 저장
+        int[] vote = new int[1001];
+        while ((v = br.readLine()) != null && !v.isEmpty()) { //eof 처리
+            String[] arr = v.split(" "); // [1,2,3]
+            vote_arr[voting_person] = new LinkedList();
+            for (int i = 0; i < n; i++) {
+                vote_arr[voting_person].add(Integer.parseInt(arr[i]) - 1);
             }
-            count ++;
+            voting_person++;
         }
-        while(true){
-            for(int i=0; i<count; i++){
-                while(v[score[i].peek()] == -1){
-                    score[i].poll();
+
+        while (true) {
+            //집계
+            for (int i = 0; i < voting_person; i++) {
+                while (vote[vote_arr[i].peek()] == -1) {
+                    vote_arr[i].poll();
                 }
-                v[score[i].peek()] ++;
-            }
-            int maxi = 0, mini = 123456789;
-            for(int i=0; i<n; i++){
-                maxi = Math.max(maxi,v[i]);
-                if(v[i] != -1){
-                    mini = Math.min(mini,v[i]);
-                }
+                vote[vote_arr[i].peek()]++;
             }
 
-            if(maxi*2 > count || maxi == mini){
-                for(int i=0; i<n; i++){
-                    if(v[i] == maxi){
+            int max = 0, min = 10000;
+            for(int i=0; i<n; i++){
+                max = Math.max(max,vote[i]);
+                if(vote[i] != -1){
+                    min = Math.min(min,vote[i]);
+                }
+            }
+            //절반 이상 또는 동률일 때
+            if (max*2 > voting_person || max == min) {
+                for (int i = 0; i < n; i++) {
+                    if (vote[i] == max) {
                         System.out.println(name[i]);
                     }
                 }
                 return;
             }
             for(int i=0; i<n; i++){
-                if(v[i] == mini){
-                    v[i] = -1;
+                if(vote[i] == min){
+                    vote[i] = -1;
                 }
-                else if(v[i] != -1){
-                    v[i] = 0;
+                else if(vote[i] != -1){
+                    vote[i] = 0;
                 }
             }
         }
